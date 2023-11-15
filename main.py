@@ -34,8 +34,9 @@ class BlogPost(db.Model):
     subtitle = db.Column(db.String(250), nullable=False)
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    author = db.Column(db.String(250), nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    author = relationship("User", back_populates="posts")
 
 
 class User(UserMixin, db.Model):
@@ -44,6 +45,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(100))
+    posts = relationship("BlogPost", back_populates="author")
 
 
 with app.app_context():
@@ -182,7 +184,7 @@ def delete_post(post_id):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.get_or_404(User, user_id)
+    return User.query.get(int(user_id))
 
 
 @app.route("/about")
